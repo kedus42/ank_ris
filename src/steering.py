@@ -7,7 +7,6 @@ import numpy as np
 nduckie=cv2.CascadeClassifier("../haarcascades/duckie_cascade_stage10.xml")
 
 rospy.init_node('steering')
-bridge=CvBridge()
 steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
 camwidth=50
 camheight=50
