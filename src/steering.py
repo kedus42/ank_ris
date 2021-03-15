@@ -3,6 +3,7 @@ import rospy
 import time
 from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage, Joy
+import numpy as np
 
 nduckie=cv2.CascadeClassifier("../haarcascades/duckie_cascade_stage10.xml")
 
@@ -14,8 +15,9 @@ camheight=50
 stop_threshhold=20
 
 def callback(image):
+    arr=np.fromstring(image.data, np.uint8)
+    img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
-    img=bridge.imgmsg_to_cv2(image, "bgr8")
     duckie=nduckie.detectMultiScale(img, 1.1, 4)
     count=0
     while i<8:
