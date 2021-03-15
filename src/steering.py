@@ -10,7 +10,7 @@ rospy.init_node('steering')
 steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
 camwidth=50
 camheight=50
-stop_threshhold=20
+move_threshhold=int(camwidth*.8)
 
 def callback(image):
     arr=np.fromstring(image.data, np.uint8)
@@ -23,13 +23,13 @@ def callback(image):
     for x,y,w,h in duckie:
         cv2.rectangle(img, (x,y), (x+w, y+h), (0, 255, 0), 1)
         cv2.imshow("found this duckie", img)
-        if x+w/2 < (camwidth/2)-camwidth/10:
+        if x+w/2 < int((camwidth/2)-camwidth/10):
             command.axes[3]=.5#wherever left is
-        elif x+w/2 > (camwidth/2)+camwidth/10:
+        elif x+w/2 > int((camwidth/2)+camwidth/10):
             command.axes[3]=-.5#wherever right is
-        if w < 20:
+        if w < move_threshhold:
             command.axes[1]=w/(camwidth)
-        elif w > 40:
+        elif w > move_threshhold:
             command.axes[1]=-.2
         else:
             command.axes[1]=0
