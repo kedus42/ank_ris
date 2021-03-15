@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 import rospy
 import time
-from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage, Joy
 import numpy as np
 
