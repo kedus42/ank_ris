@@ -4,7 +4,7 @@ import time
 from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage, Joy
 
-nduckie=cv2.CascadeClassifier("../haarcascades/")
+nduckie=cv2.CascadeClassifier("../haarcascades/duckie_cascade_stage10.xml")
 
 rospy.init_node('steering')
 bridge=CvBridge()
