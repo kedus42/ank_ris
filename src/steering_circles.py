@@ -3,20 +3,20 @@ import rospy
 import time
 from sensor_msgs.msg import CompressedImage, Joy, Image
 from cv_bridge import CvBridge
+from std_msgs.msg import String
 import numpy as np
 import cv2
 
 rospy.init_node('steering')
 steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
-leadd_pub=rospy.Publisher('/lead/joy')
 image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
+lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 action_threshhold=5
 steer_at=.3
 speed=.6
-lead_speed=.6
 bridge=CvBridge()
 
 def callback(image):
@@ -53,16 +53,13 @@ def callback(image):
         elif avgx > int((camwidth/2)+camwidth/10):
             command.axes[3]=-1*steer_at
         command.axes[1]=speed
-        rand_walk.axes[1]=lead_speed
-        #rand_walk.axes[3]=
+        lead_pub.publish("found")
     else:
-        rand_walk.axes[1]=0
-        rand_walk.axes[3]=0
         command.axes[1]=0
         command.axes[3]=0
+        lead_pub.publish("lost")
     detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
     image_pub.publish(detect_msg)
-    lead_pub.publish(rand_walk)
     steering_pub.publish(command)
 
 camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)

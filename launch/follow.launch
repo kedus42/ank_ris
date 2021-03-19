@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <node name="drive_lead" pkg="ank_ris" type="lead_duck.py" output="screen"/>
+  <node name="steering" pkg="ank_ris" type="steering_circles.py" output="screen"/>
+</launch>
