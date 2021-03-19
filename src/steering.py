@@ -21,12 +21,9 @@ def callback(image):
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
     duckie=nduckie.detectMultiScale(img, 1.1, 4)
-    lowestx=camwidth+1
-    highestx=0
     lowesty=camheight+1
-    highesty=0
-    lowestw=0
-    lowesth=0
+    lowestx=camwidth+1
+    highestx, highesty, lowestw, lowesth=0, 0, 0, 0
     highestw=camwidth
     highesth=camheight
     count=0

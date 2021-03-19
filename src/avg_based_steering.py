@@ -12,7 +12,7 @@ steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
 image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
 camwidth=50
 camheight=50
-move_threshhold=int(camwidth*.8)
+move_threshhold=int(camwidth*.6)
 action_threshhold=5
 bridge=CvBridge()
 
@@ -35,13 +35,17 @@ def callback(image):
         avgh+=h
         count+=1
     if count>action_threshhold:
+        avgx/=count
+        avgw/=count
+        avgy/=count
+        avgh/=count
         cv2.rectangle(img, (avgx, avgy), (avgx+avgw, avgy+avgh), (0, 255, 0), 1)
         if avgx+avgw/2 < int((camwidth/2)-camwidth/10):
             command.axes[1]=.5
         elif avgx+avgw/2 > int((camwidth/2)+camwidth/10):
             command.axes[3]=-.5
         if avgw < move_threshold:
-            command.axes[1]=1-recw/camwidth
+            command.axes[1]=1-avgw/camwidth
         elif avgw > move_threshold:
             command.axes[1]=.2
     else:
