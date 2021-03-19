@@ -21,47 +21,28 @@ def callback(image):
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
     duckie=nduckie.detectMultiScale(img, 1.1, 4)
-    lowestx=camwidth+1
-    highestx=0
-    lowesty=camheight+1
-    highesty=0
-    lowestw=0
-    lowesth=0
-    highestw=camwidth
-    highesth=camheight
     count=0
     action_threshhold=5
+    avgx, avgy, avgw, avgh=0, 0, 0, 0
     while i<8:
         command.axes.append(0)
         i+=1
     for x,y,w,h in duckies:
         cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 1)
-        if x < lowestx:
-            lowestx=x
-            lowestw=w
-        if x+w > highestx:
-            highestx=x+w
-            highestw=w
-        if y < lowesty:
-            lowesty=y
-            lowesth=h
-        if y+h > highesty:
-            highesty=y+h
-            highesth=h
+        avgx+=x
+        avgw+=w
+        avgy+=y
+        avgh+=h
         count+=1
-    recx=lowestx
-    recy=lowesty
-    recw=highestx-lowestx
-    rech=highesty-lowesty
     if count>action_threshhold:
-        cv2.rectangle(img, (lowestx, lowesty), (lowestx+recw, lowesty+rech), (0, 255, 0), 1)
-        if recx+recw/2 < int((camwidth/2)-camwidth/10):
+        cv2.rectangle(img, (avgx, avgy), (avgx+avgw, avgy+avgh), (0, 255, 0), 1)
+        if avgx+avgw/2 < int((camwidth/2)-camwidth/10):
             command.axes[1]=.5
-        elif recx+recw/2 > int((camwidth/2)+camwidth/10):
+        elif avgx+avgw/2 > int((camwidth/2)+camwidth/10):
             command.axes[3]=-.5
-        if recw < move_threshold:
+        if avgw < move_threshold:
             command.axes[1]=1-recw/camwidth
-        elif recw > move_threshold:
+        elif avgw > move_threshold:
             command.axes[1]=.2
     else:
         command.axes[1]=0
