@@ -9,6 +9,7 @@ steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
 
 interval=5
 lead_speed=.6
+backup_speed=-.4
 command=Joy()
 i=0
 while i<8:
@@ -18,17 +19,15 @@ command.axes[1]=lead_speed
 start=time.time()
 
 def callback(msg):
-    if msg="lost":
-        command.axes[1]=0
-        command.axes[3]=0
-    else:  
+    if msg=="lost":
+        command.axes[1]=backup_speed
+    elif msg=="found":  
         command.axes[1]=lead_speed
-        command.axes[3]=np.random.uniform(-.5, .5)
 
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
 while 1:
-    if start - time.time() > interval
+    if start-time.time() > interval:
         command.axes[3]=np.random.uniform(-.5, .5)
         start=time.time()
     steering_pub.publish(command)
