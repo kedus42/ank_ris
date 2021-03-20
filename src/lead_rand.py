@@ -4,7 +4,7 @@ import time
 from sensor_msgs.msg import Joy
 import numpy as np
 
-rospy.init_node('drive_lead')
+rospy.init_node('lead_rand')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
 
 interval=5
