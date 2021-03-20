@@ -15,7 +15,7 @@ camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 action_threshhold=5
-steer_at=.3
+steer_at=.5
 speed=.6
 bridge=CvBridge()
 
@@ -49,9 +49,9 @@ def callback(image):
     if count>action_threshhold:
         cv2.circle(img, (int(avgx), int(avgy)), int(avgr), (0, 255, 0), 1)
         if avgx < int((camwidth/2)-camwidth/10):
-            command.axes[3]=steer_at
+            command.axes[3]=steer_at*(camwidth/2-avgx)
         elif avgx > int((camwidth/2)+camwidth/10):
-            command.axes[3]=-1*steer_at
+            command.axes[3]=-1*steer_at*(avgx-camwidth/2)/(camwidth/2)
         command.axes[1]=speed
         lead_pub.publish("found")
     else:

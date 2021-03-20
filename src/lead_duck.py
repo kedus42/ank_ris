@@ -19,6 +19,7 @@ command.axes[1]=lead_speed
 start=time.time()
 
 def callback(msg):
+    global command
     if msg=="lost":
         command.axes[1]=backup_speed
     elif msg=="found":  
