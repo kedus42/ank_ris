@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <node name="lead_rand" pkg="ank_ris" type="lead_rand.py" output="screen"/>
-  <node name="steering" pkg="ank_ris" type="steering_circles.py" output="screen"/>
+  <!--node name="lead_rand" pkg="ank_ris" type="lead_rand.py" output="screen"/-->
+  <node name="follow_steering" pkg="ank_ris" type="steering_circles.py" output="screen"/>
+  <node name="lead_lb" pkg="ank_ris" type="lead_lb.py" output="screen"/>
   <!--node name="lead_circle" pkg="ank_ris" type="lead_circle.py" output="screen"/-->
 </launch>
