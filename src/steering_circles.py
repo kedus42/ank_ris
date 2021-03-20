@@ -34,7 +34,7 @@ def callback(image):
         rand_walk.axes.append(0)
         i+=1
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 1, param1=80, param2=25, minRadius=0, maxRadius=20)#param1 return to 100
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 1, param1=80, param2=25, minRadius=0, maxRadius=20)
     if circles is not None:
         circles = np.uint16(np.around(circles))
         for dim in circles[0,:]: 
