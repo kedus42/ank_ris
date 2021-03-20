@@ -6,8 +6,8 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-#nduckie=cv2.CascadeClassifier("../haarcascades/duckie_cascade_stage12.xml")
-nduckie=cv2.CascadeClassifier("../haarcascades/haarcascade_lowerbody.xml")
+#nduckie=cv2.CascadeClassifier("../../haarcascades/duckie_cascade_stage12.xml")
+nduckie=cv2.CascadeClassifier("../../haarcascades/haarcascade_lowerbody.xml")
 
 
 rospy.init_node('steering')

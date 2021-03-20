@@ -6,7 +6,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-nduckie=cv2.CascadeClassifier("../haarcascades/haarcascade_frontalface_default.xml")
+nduckie=cv2.CascadeClassifier("../../haarcascades/haarcascade_frontalface_default.xml")
 
 rospy.init_node('steering')
 steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
