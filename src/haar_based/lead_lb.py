@@ -62,7 +62,7 @@ def follow_callback(msg):
     if msg=="lost":
         move=False
     if msg=="found":
-        move==True
+        move=True
 
 camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)

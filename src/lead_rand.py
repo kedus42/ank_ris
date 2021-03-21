@@ -20,16 +20,18 @@ command.axes[1]=lead_speed
 start=time.time()
 
 def callback(msg):
-    global command
+    global command, move
     if msg=="lost":
         command.axes[1]=backup_speed
+        move=False
     elif msg=="found":  
         command.axes[1]=lead_speed
+        move=True
 
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
 while 1:
-    if start-time.time() > interval:
+    if start-time.time() > interval and move:
         command.axes[3]=np.random.uniform(-.5, .5)
         start=time.time()
     steering_pub.publish(command)
