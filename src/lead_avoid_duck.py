@@ -7,7 +7,7 @@ from std_msgs.msg import String
 import numpy as np
 import cv2
 
-rospy.init("avoid")
+rospy.init_node("lead_avoid")
 avoid_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
 image_pub=rospy.Publisher('/lead/ducks', Image, queue_size=30)
 bridge=CvBridge()
@@ -38,12 +38,12 @@ def callback(image):
     colored_img=bridge.cv2_to_imgmsg(colored)
     image_pub.publish(colored_img)
     #find center of mass yellow in hsvimg
-    if #mass yellow found:
-        if #mass yellow in hsvimg centered on the left:
+    #if mass yellow found:
+    #    if #mass yellow in hsvimg centered on the left:
             #command.axes[3]=steer_at
-        elif #mass yellow in hsvimg centered in the right:
+    #    elif #mass yellow in hsvimg centered in the right:
             #commadn.axesp[3]=-1*steer_at
-    elif #last_update-time.time()>interval and lost==False:
+    #elif last_update-time.time()>interval and lost==False:
         #command.axes[3]=np.random.uniform(-.5, .5)
         #last_update=time.time()
     if lost==True:

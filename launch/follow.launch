@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <node name="lead_rand" pkg="ank_ris" type="lead_rand.py" output="screen"/>
+  <arg name="lead_node" default="rand"/>
+
+  <group if="$(eval arg('lead_node') == 'rand')">
+    <node name="lead_rand" pkg="ank_ris" type="lead_rand.py" output="screen"/>
+  </group>
+  <group if="$(eval arg('lead_node') == 'lb')">
+    <node name="lead_lb" pkg="ank_ris" type="lead_lb.py" output="screen"/>
+  </group>
+  <group if="$(eval arg('lead_node') == 'circle')">
+    <node name="lead_circle" pkg="ank_ris" type="lead_circle.py" output="screen"/>
+  </group>
+  <group if="$(eval arg('lead_node') == 'avoid')">
+    <node name="lead_avoid" pkg="ank_ris" type="lead_avoid_duck.py" output="screen"/>
+  </group>
+
   <node name="follow_steering" pkg="ank_ris" type="steering_circles.py" output="screen"/>
-  <!--node name="lead_lb" pkg="ank_ris" type="lead_lb.py" output="screen"/-->
-  <!--node name="lead_circle" pkg="ank_ris" type="lead_circle.py" output="screen"/-->
-  <!--node name="avoid" pkg="ank_ris" type="lead_avoid_duck.py" output="screen"/-->
 </launch>
