@@ -53,7 +53,7 @@ def callback(image):
             command.axes[3]=steer_at
         else:
             command.axes[3]=-1*steer_at
-    elif last_update-time.time()>interval and lost==False:
+    elif time.time()-last_update>interval and lost==False:
         command.axes[3]=np.random.uniform(-.5, .5)
         last_update=time.time()
     if lost==True:
