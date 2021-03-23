@@ -16,7 +16,7 @@ interval=5
 steer_at=.5
 speed=.6
 backup_speed=-.4
-avoidance_trigger=10
+avoidance_trigger=20
 last_update=time.time()
 lost=False
 camwidth=640
@@ -47,7 +47,7 @@ def callback(image):
     mask_sum=np.sum(mask)
     if mask_sum>mask.shape[0]*mask.shape[1]*255/avoidance_trigger:
         num_yellow=mask_sum/255
-        avgx=mask*indices[0]
+        avgx=mask*indices[1]
         avgx/=(255*num_yellow)
         if avgx<camwidth/2:
             command.axes[3]=steer_at
