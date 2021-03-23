@@ -3,14 +3,17 @@ import rospy
 import numpy as np
 import cv2
 
+def empty():
+    pass
+
 cv2.namedWindow("Trackbars")
 cv2.resizeWindow("Trackbars", 600, 350)
-cv2.createTrackbar("Hue Min", "Trackbars", 0, 179, empty)
-cv2.createTrackbar("Hue Max", "Trackbars", 0, 179, empty)
-cv2.createTrackbar("Sat Min", "Trackbars", 0, 255, empty)
-cv2.createTrackbar("Sat Max", "Trackbars", 0, 255, empty)
+cv2.createTrackbar("Hue Min", "Trackbars", 17, 179, empty)
+cv2.createTrackbar("Hue Max", "Trackbars", 88, 179, empty)
+cv2.createTrackbar("Sat Min", "Trackbars", 31, 255, empty)
+cv2.createTrackbar("Sat Max", "Trackbars", 255, 255, empty)
 cv2.createTrackbar("val Min", "Trackbars", 0, 255, empty)
-cv2.createTrackbar("Val Max", "Trackbars", 0, 255, empty)
+cv2.createTrackbar("Val Max", "Trackbars", 255, 255, empty)
 
 def callback(image):
     arr=np.fromstring(image.data, np.uint8)
