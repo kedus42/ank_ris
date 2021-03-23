@@ -29,8 +29,9 @@ command=Joy()
 i=0
 while i < 8:
     command.axes.append(0)
+    i+=1
 
-indices=np.indices((cam_width, cam_height))
+indices=np.indices((camwidth, camheight))
 
 def callback(image):
     global command, hmin, smin, vmin, hmax, smax, vmax, lost, indices, last_update

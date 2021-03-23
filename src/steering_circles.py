@@ -23,7 +23,6 @@ def callback(image):
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
-    rand_walk=Joy()
     avgx=0
     avgy=0
     avgr=0
@@ -31,7 +30,6 @@ def callback(image):
     count=0
     while i<8:
         command.axes.append(0)
-        rand_walk.axes.append(0)
         i+=1
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 1, param1=80, param2=25, minRadius=0, maxRadius=20)
