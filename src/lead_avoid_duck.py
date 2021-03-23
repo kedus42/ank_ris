@@ -26,6 +26,8 @@ skip_nimages=1
 
 hmin, smin, vmin = 17, 31, 0
 hmax, smax, vmax = 88, 255, 255
+lower = np.array([hmin, smin, vmin])
+upper = np.array([hmax, smax, vmax])
 
 command=Joy()
 i=0
@@ -42,8 +44,6 @@ def callback(image):
         arr=np.fromstring(image.data, np.uint8)
         img=cv2.imdecode(arr, cv2.IMREAD_COLOR)
         Hsvimg=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower = np.array([hmin, smin, vmin])
-        upper = np.array([hmax, smax, vmax])
         mask=cv2.inRange(Hsvimg, lower, upper)
         colored=cv2.bitwise_and(img, img, mask=mask)
         colored_img=bridge.cv2_to_imgmsg(colored)
