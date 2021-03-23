@@ -21,6 +21,8 @@ last_update=time.time()
 lost=False
 camwidth=640
 camheight=480
+previous_seq=0
+skip_nimages=1
 
 hmin, smin, vmin = 17, 31, 0
 hmax, smax, vmax = 88, 255, 255
@@ -34,33 +36,37 @@ while i < 8:
 indices=np.indices((camwidth, camheight))
 
 def callback(image):
-    global command, hmin, smin, vmin, hmax, smax, vmax, lost, indices, last_update
-    arr=np.fromstring(image.data, np.uint8)
-    img=cv2.imdecode(arr, cv2.IMREAD_COLOR)
-    Hsvimg=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower = np.array([hmin, smin, vmin])
-    upper = np.array([hmax, smax, vmax])
-    mask=cv2.inRange(Hsvimg, lower, upper)
-    colored=cv2.bitwise_and(img, img, mask=mask)
-    colored_img=bridge.cv2_to_imgmsg(colored)
-    image_pub.publish(colored_img)
-    mask_sum=np.sum(mask)
-    if mask_sum>mask.shape[0]*mask.shape[1]*255/avoidance_trigger:
-        num_yellow=mask_sum/255
-        avgx=mask*indices[1]
-        avgx/=(255*num_yellow)
-        if avgx<camwidth/2:
-            command.axes[3]=steer_at
+    global command, last_update, previous_seq
+    if image.header.seq-previous_seq > skip_nimages: 
+        previous_seq = image.header.seq
+        arr=np.fromstring(image.data, np.uint8)
+        img=cv2.imdecode(arr, cv2.IMREAD_COLOR)
+        Hsvimg=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower = np.array([hmin, smin, vmin])
+        upper = np.array([hmax, smax, vmax])
+        mask=cv2.inRange(Hsvimg, lower, upper)
+        colored=cv2.bitwise_and(img, img, mask=mask)
+        colored_img=bridge.cv2_to_imgmsg(colored)
+        image_pub.publish(colored_img)
+        mask_sum=np.sum(mask)
+        if mask_sum>mask.shape[0]*mask.shape[1]*255/avoidance_trigger:
+            num_yellow=mask_sum/255
+            avgx=mask*indices[1]
+            avgx/=(255*num_yellow)
+            if avgx<camwidth/2:
+                command.axes[3]=steer_at
+            else:
+                command.axes[3]=-1*steer_at
+        elif time.time()-last_update>interval and lost==False:
+            command.axes[3]=np.random.uniform(-.5, .5)
+            last_update=time.time()
+        if lost==True:
+            command.axes[1]=backup_speed
         else:
-            command.axes[3]=-1*steer_at
-    elif time.time()-last_update>interval and lost==False:
-        command.axes[3]=np.random.uniform(-.5, .5)
-        last_update=time.time()
-    if lost==True:
-        command.axes[1]=backup_speed
+            command.axes[1]=speed
+        avoid_pub.publish(command)
     else:
-        command.axes[1]=speed
-    avoid_pub.publish(command)
+        pass
 
 def lost_found_callback(msg):
     global lost
