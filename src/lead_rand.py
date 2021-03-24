@@ -18,6 +18,7 @@ while i<8:
     i+=1
 command.axes[1]=lead_speed
 start=time.time()
+move=True
 
 def callback(msg):
     global command, move
