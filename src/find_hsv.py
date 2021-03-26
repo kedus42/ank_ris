@@ -2,7 +2,9 @@
 import rospy
 import numpy as np
 import cv2
+from sensor_msgs.msg import CompressedImage
 
+rospy.init_node("hsv_finder")
 def empty():
     pass
 
@@ -15,7 +17,8 @@ cv2.createTrackbar("Sat Max", "Trackbars", 255, 255, empty)
 cv2.createTrackbar("val Min", "Trackbars", 0, 255, empty)
 cv2.createTrackbar("Val Max", "Trackbars", 255, 255, empty)
 
-def callback(image):
+def callback(timer_msg):
+    image=rospy.wait_for_message('/ank/camera_node/image/compressed', CompressedImage)
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)
     Hsvimg=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -32,5 +35,6 @@ def callback(image):
     colored=cv2.bitwise_and(img, img, mask=mask)
     cv2.imshow("colored", colored)
     cv2.imshow("Masked", mask)
-
-camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
+    cv2.waitKey(1)
+timer=rospy.Timer(rospy.Duration(1), callback=callback)
+rospy.spin()

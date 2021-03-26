@@ -10,52 +10,61 @@ import cv2
 nbody=cv2.CascadeClassifier("../../haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
-steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
+steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 action_threshhold=0
 steer_at=.5
 speed=.6
+move=True
+prev_seq=0
+skip_nimages=2
 bridge=CvBridge()
 
 def callback(image):
-    arr=np.fromstring(image.data, np.uint8)
-    img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
-    command=Joy()
-    bodies=nbody.detectMultiScale(img, 1.1, 4)
-    highestw=0
-    count=0
-    action_threshhold=0
-    i=0
-    while i<8:
-        command.axes.append(0)
-        i+=1
-    for x,y,w,h in bodies:
-        cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 1)
-        if w > highestw:
-            trackx=x
-            tracky=y
-            trackh=h
-            hgihest=w
-        count+=1
-    cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
-    if count > 0 and move:
-        if trackx+trackw/2 < int((camwidth/2)-camwidth/10):
-            command.axes[3]=steer_at*((trackx+trackw/2)-camwidth/2)/(camwidth/2)
-        elif trackx+trackw/2 > int((camwidth/2)+camwidth/10):
-            command.axes[3]=-1*steer_at*((trackx+trackw/2)-camwidth/2)/(camwidth/2)
-        if trackw < move_threshhold:
-            command.axes[1]=(1-trackw/camwidth)*speed
-        elif trackw > move_threshhold:
-            command.axes[1]=-.2
+    global command, prev_seq
+    if image.header.seq-prev_seq>skip_nimages:
+        prev_seq=image.header.seq
+        arr=np.fromstring(image.data, np.uint8)
+        img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
+        command=Joy()
+        bodies=nbody.detectMultiScale(img, 1.1, 4)
+        highestw=0
+        count=0
+        action_threshhold=0
+        i=0
+        while i<8:
+            command.axes.append(0)
+            i+=1
+        for x,y,w,h in bodies:
+            cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 1)
+            if w > highestw:
+                trackx=x
+                tracky=y
+                trackh=h
+                hgihestw=w
+            count+=1
+        if count > 0 and move:
+            cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
+            if trackx+highestw/2 < int((camwidth/2)-camwidth/10):
+                command.axes[3]=steer_at*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+            elif trackx+highestw/2 > int((camwidth/2)+camwidth/10):
+                command.axes[3]=-1*steer_at*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+            if highestw < move_threshhold:
+                command.axes[1]=(1-highestw/camwidth)*speed
+            elif highestw > move_threshhold:
+                command.axes[1]=-.2
+        else:
+            command.axes[1]=0
+            command.axes[3]=0
+        detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
+        image_pub.publish(detect_msg)
+        #cv2.imshow("detected", img)
+        steering_pub.publish(command)
     else:
-        command.axes[1]=0
-        command.axes[3]=0
-    detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
-    image_pub.publish(detect_msg)
-    steering_pub.publish(command)
+        pass
 
 def follow_callback(msg):
     global move
@@ -64,6 +73,6 @@ def follow_callback(msg):
     if msg=="found":
         move=True
 
-camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
+camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 rospy.spin()

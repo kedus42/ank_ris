@@ -8,11 +8,11 @@ import numpy as np
 import cv2
 
 rospy.init_node("lead_avoid")
-avoid_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/lead/ducks', Image, queue_size=30)
+avoid_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/ank/ducks', Image, queue_size=30)
 bridge=CvBridge()
 
-interval=5
+interval=1
 steer_at=.5
 speed=.6
 backup_speed=-.4
@@ -24,8 +24,8 @@ camheight=480
 previous_seq=0
 skip_nimages=1
 
-hmin, smin, vmin = 17, 31, 0
-hmax, smax, vmax = 88, 255, 255
+hmin, smin, vmin = 17, 184, 0
+hmax, smax, vmax = 32, 255, 145
 lower = np.array([hmin, smin, vmin])
 upper = np.array([hmax, smax, vmax])
 
@@ -35,7 +35,7 @@ while i < 8:
     command.axes.append(0)
     i+=1
 
-indices=np.indices((camwidth, camheight))
+indices=np.indices((camheight, camwidth))
 
 def callback(image):
     global command, last_update, previous_seq
@@ -46,12 +46,12 @@ def callback(image):
         Hsvimg=cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask=cv2.inRange(Hsvimg, lower, upper)
         colored=cv2.bitwise_and(img, img, mask=mask)
-        colored_img=bridge.cv2_to_imgmsg(colored)
-        image_pub.publish(colored_img)
+        masked_img=bridge.cv2_to_imgmsg(mask)
+        image_pub.publish(masked_img)
         mask_sum=np.sum(mask)
         if mask_sum>mask.shape[0]*mask.shape[1]*255/avoidance_trigger:
             num_yellow=mask_sum/255
-            avgx=mask*indices[1]
+            avgx=np.sum(mask*indices[1])
             avgx/=(255*num_yellow)
             if avgx<camwidth/2:
                 command.axes[3]=steer_at
@@ -75,7 +75,7 @@ def lost_found_callback(msg):
     else:
         lost=False
 
-follow_sub=rospy.Subscriber('/lead/lost', String, callback=lost_found_callback)
-camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
+#follow_sub=rospy.Subscriber('/lead/lost', String, callback=lost_found_callback)
+camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
 
 rospy.spin()
