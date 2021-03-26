@@ -10,8 +10,8 @@ import cv2
 nbody=cv2.CascadeClassifier("../../haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
-steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
+steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
@@ -73,6 +73,6 @@ def follow_callback(msg):
     if msg=="found":
         move=True
 
-camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
+camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 rospy.spin()

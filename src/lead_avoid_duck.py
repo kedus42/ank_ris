@@ -8,8 +8,8 @@ import numpy as np
 import cv2
 
 rospy.init_node("lead_avoid")
-avoid_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/ank/ducks', Image, queue_size=30)
+avoid_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/lead/ducks', Image, queue_size=30)
 bridge=CvBridge()
 
 interval=1
@@ -76,6 +76,6 @@ def lost_found_callback(msg):
         lost=False
 
 #follow_sub=rospy.Subscriber('/lead/lost', String, callback=lost_found_callback)
-camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
+camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
 
 rospy.spin()

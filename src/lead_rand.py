@@ -29,7 +29,7 @@ def callback(msg):
         command.axes[1]=lead_speed
         move=True
 
-follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
+#follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
 while 1:
     if time.time()-start > interval and move:
