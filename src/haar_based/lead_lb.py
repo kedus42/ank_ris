@@ -49,9 +49,9 @@ def callback(image):
         if count > 0 and move:
             cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
             if trackx+highestw/2 < int((camwidth/2)-camwidth/10):
-                command.axes[3]=steer_at*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+                command.axes[3]=steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
             elif trackx+highestw/2 > int((camwidth/2)+camwidth/10):
-                command.axes[3]=-1*steer_at*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+                command.axes[3]=-1*steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
             if highestw < move_threshhold:
                 command.axes[1]=(1-highestw/camwidth)*speed
             elif highestw > move_threshhold:

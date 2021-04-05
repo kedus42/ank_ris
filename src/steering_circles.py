@@ -10,7 +10,7 @@ import cv2
 rospy.init_node('steering')
 steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
 image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
-#lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
+lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
@@ -56,11 +56,11 @@ def callback(image):
             elif avgx > int((camwidth/2)+camwidth/10):
                 command.axes[3]=-1*steer_at#*(avgx-camwidth/2)/(camwidth/2)
             command.axes[1]=speed
-            #lead_pub.publish("found")
+            lead_pub.publish("found")
         else:
             command.axes[1]=0
             command.axes[3]=0
-            #lead_pub.publish("lost")
+            lead_pub.publish("lost")
         detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
         image_pub.publish(detect_msg)
         steering_pub.publish(command)
