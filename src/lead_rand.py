@@ -31,7 +31,7 @@ def callback(msg):
 
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
-while 1:
+while 1 and not rospy.is_shutdown():
     if time.time()-start > interval and move:
         command.axes[3]=np.random.uniform(-.5, .5)
         start=time.time()

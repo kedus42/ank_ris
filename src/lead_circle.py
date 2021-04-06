@@ -30,7 +30,7 @@ def callback(msg):
 
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
-while 1:
+while 1 and not rospy.is_shutdown():
     if move:
         command.axes[3]=steer_at
     else:
