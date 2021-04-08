@@ -30,7 +30,7 @@ def callback(image):
         arr=np.fromstring(image.data, np.uint8)
         img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
         command=Joy()
-        bodies=nbody.detectMultiScale(img, 1.1, 4)
+        bodies=nbody.detectMultiScale(img, 1.05, 3)
         highestw=0
         count=0
         action_threshhold=0
