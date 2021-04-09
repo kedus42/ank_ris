@@ -22,6 +22,7 @@ start=time.time()
 move=True
 
 def sigint(sig):
+    rospy.loginfo("here")
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)
