@@ -10,7 +10,7 @@ rospy.init_node('lead_rand')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
 
 interval=5
-lead_speed=.4
+lead_speed=.2
 backup_speed=-.4
 command=Joy()
 i=0
