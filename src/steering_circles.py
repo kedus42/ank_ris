@@ -21,7 +21,7 @@ previous_seq=0
 skip_nimages = 15
 bridge=CvBridge()
 
-def callback(image):
+def callback(t_info):
     #global previous_seq
     #if image.header.seq - previous_seq > skip_nimages:
     #    previous_seq = image.header.seq
