@@ -2,6 +2,7 @@
 import rospy
 import time
 from sensor_msgs.msg import CompressedImage, Joy, Image
+from ank_ris.msg import Pose2D
 from cv_bridge import CvBridge
 from std_msgs.msg import String
 import numpy as np
@@ -15,8 +16,8 @@ camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 action_threshhold=5
-steer_at=.2
-speed=.6
+steer_at=.1
+speed=.2
 previous_seq=0
 skip_nimages = 15
 bridge=CvBridge()
@@ -68,6 +69,6 @@ def callback(t_info):
     #else:
     #    pass
 
-timer=rospy.timer(rospy.Duration(.5), callback)
+timer=rospy.Timer(rospy.Duration(.5), callback)
 #camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
 rospy.spin()
