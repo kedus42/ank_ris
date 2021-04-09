@@ -6,7 +6,7 @@ from std_msgs.msg import String
 import numpy as np
 import signal
 
-rospy.init_node('lead_rand', disable_signals=True)
+rospy.init_node('lead_rand')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
 
 interval=5
