@@ -2,7 +2,6 @@
 import rospy
 import time
 from sensor_msgs.msg import CompressedImage, Joy, Image
-from ank_ris.msg import Pose2D
 from cv_bridge import CvBridge
 from std_msgs.msg import String
 import numpy as np
@@ -21,8 +20,10 @@ speed=.2
 previous_seq=0
 skip_nimages = 15
 bridge=CvBridge()
+prev_move=time.time()
 
 def callback(t_info):
+    global prev_move
     #global previous_seq
     #if image.header.seq - previous_seq > skip_nimages:
     #    previous_seq = image.header.seq
@@ -59,6 +60,9 @@ def callback(t_info):
             command.axes[3]=-1*steer_at#*(avgx-camwidth/2)/(camwidth/2)
         command.axes[1]=speed
         lead_pub.publish("found")
+        prev_move=time.time()
+    elif time.time() - prev_move >= 2:
+        command.axes[1]=speed
     else:
         command.axes[1]=0
         command.axes[3]=0
