@@ -13,14 +13,15 @@ image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
 lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
-move_threshhold=int(camwidth*.8)
+move_threshhold=int(camwidth*.5)
 action_threshhold=5
 steer_at=.1
 speed=.2
-previous_seq=0
-skip_nimages = 15
+#previous_seq=0
+#skip_nimages = 15
 bridge=CvBridge()
-prev_move=time.time()
+idle_time_steps=0
+tolerable_idlness=2
 
 def callback(t_info):
     global prev_move
@@ -52,7 +53,10 @@ def callback(t_info):
         avgx/=count
         avgy/=count
         avgr/=count
-    if count>action_threshhold:
+    if avgr>move_threshhold:
+        command.axes[1]=0
+        command.axes[3]=0
+    elif count>action_threshhold:
         cv2.circle(img, (int(avgx), int(avgy)), int(avgr), (0, 255, 0), 1)
         if avgx < int((camwidth/2)-camwidth/10):
             command.axes[3]=steer_at#*(camwidth/2-avgx)
@@ -61,11 +65,14 @@ def callback(t_info):
         command.axes[1]=speed
         lead_pub.publish("found")
         prev_move=time.time()
-    elif time.time() - prev_move >= 2:
-        command.axes[1]=speed
+        idle_time_steps=0
+    elif idle_time_steps >= tolerable_idlness:
+        command.axes[1]=speed*2
+        command.axes[3]=0
     else:
         command.axes[1]=0
         command.axes[3]=0
+        idle_time_steps+=1
         lead_pub.publish("lost")
     detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
     image_pub.publish(detect_msg)
