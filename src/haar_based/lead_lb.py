@@ -16,18 +16,18 @@ camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 action_threshhold=0
-steer_at=.5
-speed=.6
+steer_at=.05
+speed=.2
 move=True
-prev_seq=0
-skip_nimages=2
+#prev_seq=0
+#skip_nimages=2
 bridge=CvBridge()
 
 def callback(image):
     #global prev_seq
     #if image.header.seq-prev_seq>skip_nimages:
     rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
-    prev_seq=image.header.seq
+    #prev_seq=image.header.seq
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
