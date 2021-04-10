@@ -17,17 +17,12 @@ move_threshhold=int(camwidth*.5)
 action_threshhold=5
 steer_at=.1
 speed=.2
-#previous_seq=0
-#skip_nimages = 15
 bridge=CvBridge()
 idle_time_steps=0
 tolerable_idlness=2
 
 def callback(t_info):
-    global prev_move
-    #global previous_seq
-    #if image.header.seq - previous_seq > skip_nimages:
-    #    previous_seq = image.header.seq
+    global idle_time_steps
     image=rospy.wait_for_message('/ank/camera_node/image/compressed', CompressedImage)
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
@@ -77,9 +72,6 @@ def callback(t_info):
     detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
     image_pub.publish(detect_msg)
     steering_pub.publish(command)
-    #else:
-    #    pass
 
 timer=rospy.Timer(rospy.Duration(.5), callback)
-#camera_sub=rospy.Subscriber('/ank/camera_node/image/compressed', CompressedImage, callback=callback)
 rospy.spin()
