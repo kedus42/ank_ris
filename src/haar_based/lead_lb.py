@@ -19,19 +19,14 @@ action_threshhold=0
 steer_at=.05
 speed=.2
 move=True
-#prev_seq=0
-#skip_nimages=2
 bridge=CvBridge()
 
 def callback(image):
-    #global prev_seq
-    #if image.header.seq-prev_seq>skip_nimages:
     rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
-    #prev_seq=image.header.seq
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
-    bodies=nbody.detectMultiScale(img, 1.05, 3)
+    bodies=nbody.detectMultiScale(img, 1.4, 3)
     highestw=0
     count=0
     action_threshhold=0
@@ -64,8 +59,6 @@ def callback(image):
     image_pub.publish(detect_msg)
     #cv2.imshow("detected", img)
     steering_pub.publish(command)
-    #else:
-    #    pass
 
 def follow_callback(msg):
     global move
