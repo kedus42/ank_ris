@@ -13,13 +13,14 @@ image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
 lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
-move_threshhold=int(camwidth*.5)
+move_threshhold=int(camwidth*.25)
 action_threshhold=5
 steer_at=.1
 speed=.2
 bridge=CvBridge()
 idle_time_steps=0
 tolerable_idlness=2
+fps=2.0
 
 def callback(t_info):
     global idle_time_steps
@@ -49,6 +50,7 @@ def callback(t_info):
         avgy/=count
         avgr/=count
     if avgr>move_threshhold:
+        cv2.circle(img, (int(avgx), int(avgy)), int(avgr), (0, 255, 0), 1)
         command.axes[1]=0
         command.axes[3]=0
     elif count>action_threshhold:
@@ -73,5 +75,5 @@ def callback(t_info):
     image_pub.publish(detect_msg)
     steering_pub.publish(command)
 
-timer=rospy.Timer(rospy.Duration(.5), callback)
+timer=rospy.Timer(rospy.Duration(1.0/fps), callback)
 rospy.spin()
