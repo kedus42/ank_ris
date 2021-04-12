@@ -15,6 +15,7 @@ image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
+min_width=int(camwidth*.8)
 action_threshhold=0
 steer_at=.05
 speed=.2
@@ -26,7 +27,7 @@ def callback(image):
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
-    bodies=nbody.detectMultiScale(img, 1.4, 3)
+    bodies=nbody.detectMultiScale(img, 1.2, 1)
     highestw=0
     count=0
     action_threshhold=0
@@ -49,9 +50,9 @@ def callback(image):
         elif trackx+highestw/2 > int((camwidth/2)+camwidth/10):
             command.axes[3]=-1*steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
         if highestw < move_threshhold:
-            command.axes[1]=(1-highestw/camwidth)*speed
+            command.axes[1]=speed
         elif highestw > move_threshhold:
-            command.axes[1]=-.2
+            command.axes[1]=-1*speed
     else:
         command.axes[1]=0
         command.axes[3]=0

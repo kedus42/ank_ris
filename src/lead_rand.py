@@ -21,8 +21,7 @@ command.axes[1]=lead_speed
 start=time.time()
 move=True
 
-def sigint(sig):
-    rospy.loginfo("here")
+def stopLeader(sig):
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)
@@ -36,7 +35,7 @@ def callback(msg):
         command.axes[1]=lead_speed
         move=True
 
-signal.signal(signal.SIGINT, sigint)
+rospy.on_shutdown(stopLeader)
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
 
 while 1 and not rospy.is_shutdown():
