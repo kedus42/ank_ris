@@ -15,7 +15,6 @@ image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
-min_width=int(camwidth*.8)
 action_threshhold=0
 steer_at=.05
 speed=.2
