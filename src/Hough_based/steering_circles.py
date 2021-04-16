@@ -23,6 +23,7 @@ tolerable_idlness=2
 fps=2.0
 
 def stopFollower():
+    command=Joy()
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)
