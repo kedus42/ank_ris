@@ -24,6 +24,10 @@ fps=2.0
 
 def stopFollower():
     command=Joy()
+    i=0
+    while i<8:
+        command.axes.append(0)
+        i+=1
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)
