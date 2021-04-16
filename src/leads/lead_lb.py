@@ -7,7 +7,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-nbody=cv2.CascadeClassifier("../../haarcascades/haarcascade_lowerbody.xml")
+nbody=cv2.CascadeClassifier("/home/kedus/Workspace/catkin_ws/src/sphere_control/haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
@@ -15,14 +15,15 @@ image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
+h_threshold=int(camheight*0)
 action_threshhold=0
-steer_at=.05
-speed=.2
+steer_at=.2
+speed=.3
 move=True
 bridge=CvBridge()
 
-def callback(image):
-    rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
+def callback(timer_info):
+    image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
     arr=np.fromstring(image.data, np.uint8)
     img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
     command=Joy()
@@ -30,6 +31,7 @@ def callback(image):
     highestw=0
     count=0
     action_threshhold=0
+    highesth=0
     i=0
     while i<8:
         command.axes.append(0)
@@ -40,9 +42,10 @@ def callback(image):
             trackx=x
             tracky=y
             trackh=h
-            hgihestw=w
+            highesth=h
+            highestw=w
         count+=1
-    if count > 0 and move:
+    if count > 0 and highesth>h_threshold and move:
         cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
         if trackx+highestw/2 < int((camwidth/2)-camwidth/10):
             command.axes[3]=steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
