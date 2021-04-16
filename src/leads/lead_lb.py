@@ -7,7 +7,7 @@ from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-nbody=cv2.CascadeClassifier("/home/kedus/Workspace/catkin_ws/src/sphere_control/haarcascades/haarcascade_lowerbody.xml")
+nbody=cv2.CascadeClassifier("/home/nayan/catkin_ws/src/ank_ris/haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
