@@ -21,7 +21,7 @@ command.axes[1]=lead_speed
 start=time.time()
 move=True
 
-def stopLeader(sig):
+def stopLeader():
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)

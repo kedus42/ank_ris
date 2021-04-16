@@ -22,6 +22,13 @@ idle_time_steps=0
 tolerable_idlness=2
 fps=2.0
 
+def stopFollower():
+    command.axes[1]=0
+    command.axes[3]=0
+    steering_pub.publish(command)
+
+rospy.on_shutdown(stopFollower)
+
 def callback(t_info):
     global idle_time_steps
     image=rospy.wait_for_message('/ank/camera_node/image/compressed', CompressedImage)
