@@ -17,8 +17,8 @@ camheight=480
 move_threshhold=int(camwidth*.8)
 h_threshold=int(camheight*0)
 action_threshhold=0
-steer_at=.2
-speed=.3
+steer_at=.1
+speed=.2
 move=True
 bridge=CvBridge()
 
