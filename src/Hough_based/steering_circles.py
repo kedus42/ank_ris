@@ -14,8 +14,8 @@ lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.25)
-action_threshhold=5
-steer_at=.05
+action_threshhold=0
+steer_at=.1
 speed=.2
 bridge=CvBridge()
 idle_time_steps=0
@@ -76,7 +76,7 @@ def callback(t_info):
         prev_move=time.time()
         idle_time_steps=0
     elif idle_time_steps >= tolerable_idlness:
-        command.axes[1]=speed*2
+        command.axes[1]=0
         command.axes[3]=0
     else:
         command.axes[1]=0
