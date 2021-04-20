@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-import rospy
-import time
+import rospy, time, rospkg
 from sensor_msgs.msg import CompressedImage, Joy, Image
 from std_msgs.msg import String
 from cv_bridge import CvBridge
 import numpy as np
 import cv2
 
-nbody=cv2.CascadeClassifier("/home/nayan/catkin_ws/src/ank_ris/haarcascades/haarcascade_lowerbody.xml")
+rospack=rospkg.RosPack()
+path=rospack.get_path('ank_ris')
+nbody=cv2.CascadeClassifier(path+"/haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)

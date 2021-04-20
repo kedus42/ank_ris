@@ -14,9 +14,9 @@ lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.25)
-action_threshhold=0
+action_threshhold=2
 steer_at=.1
-speed=.2
+speed=.25
 bridge=CvBridge()
 idle_time_steps=0
 tolerable_idlness=2
