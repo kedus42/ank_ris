@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import rospy, sys, rospkg, cv2
+import rospy, sys, rospkg, cv2, math
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog
 from sensor_msgs.msg import Joy, CompressedImage
@@ -11,7 +11,7 @@ rospack=rospkg.RosPack()
 path=rospack.get_path('ank_ris')
 
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=10, latch=True)
-while steering_pub.get_num_connections() < 1:
+while steering_pub.get_num_connections() < 1 and not rospy.is_shutdown():
     pass
 
 command=Joy()
@@ -19,6 +19,15 @@ i=0
 while i<8:
     command.axes.append(0)
     i+=1
+
+home=Pose2DStamped()
+current_pose=Pose2DStamped()
+return_home=False
+new_home=True
+lin_speed=0.5
+ang_speed=0.2
+full_circle=20
+full_circle_time=5
 
 def triggerOdom():
     command.axes[3]=0.1
@@ -28,18 +37,13 @@ def triggerOdom():
     steering_pub.publish(command)
 
 def stopDuck():
+    global return_home
     command.axes[1]=0
     command.axes[3]=0
     steering_pub.publish(command)
+    return_home=False
 
 rospy.on_shutdown(stopDuck)
-
-home=Pose2DStamped()
-current_pose=Pose2DStamped()
-return_home=False
-new_home=True
-lin_speed=0.5
-ang_speed=0.2
 
 class window(QMainWindow):
     def __init__(self):
@@ -110,7 +114,31 @@ class window(QMainWindow):
         self.l4.setScaledContents(1)
 
     def b1_clicked(self):
-        pass
+        global return_home
+        change_vector=np.array([current_pose.x-home.x, current_pose.y-home.y, current_pose.theta-home.theta])
+        rospy.loginfo("change vector theta: "+str(change_vector[0]))
+        if change_vector[0]<0:
+            rospy.loginfo("case 1")
+            rospy.loginfo("angle to home: "+str(math.degrees(np.arctan2(current_pose.y, current_pose.x))))
+            rotation_correction=change_vector[2]+math.degrees(np.arctan2(current_pose.y, current_pose.x))
+            command.axes[3]=-1*ang_speed
+            steering_pub.publish(command)
+            rospy.loginfo("rotation correction: "+str(rotation_correction))
+            rospy.sleep(full_circle_time*abs(rotation_correction)/360)
+            return_home=True
+            command.axes[3]=0
+            steering_pub.publish(command)
+        else:
+            rospy.loginfo("case 2")
+            rospy.loginfo("angle to home: "+str(math.degrees(np.arctan2(current_pose.y, current_pose.x))))
+            rotation_correction=change_vector[2]+math.degrees(np.arctan2(current_pose.y, current_pose.x))
+            command.axes[3]=ang_speed
+            steering_pub.publish(command)
+            rospy.loginfo("rotation correction: "+str(180+rotation_correction))
+            rospy.sleep(full_circle_time*abs(180+rotation_correction)/360)
+            return_home=True
+            command.axes[3]=0
+            steering_pub.publish(command)
     def b2_clicked(self):
         command.axes[1]=lin_speed
         command.axes[3]=np.random.uniform(-1*lin_speed, lin_speed)
@@ -139,13 +167,20 @@ win.show()
 def odom_callback(pose):
     global return_home, win, new_home, home, current_pose
     current_pose=pose
-    if return_home == False:
-        win.l2.setText("Current position: "+str(round(pose.x, 2))+"x  "+str(round(pose.y, 2))+ "y  "+str(round(pose.theta, 2))+" theta")
+    if current_pose.theta>=0:
+        current_pose.theta=(current_pose.theta%full_circle)*(360/full_circle)
     else:
-        if np.linalg.norm(np.array([home.x, home.y, home.z])-np.array([home.x, home.y, home.z])) < 5:
+        temp=(abs(current_pose.theta)%full_circle)
+        current_pose.theta=(full_circle-temp)*(360/full_circle)
+    win.l2.setText("Current position: "+str(round(pose.x, 2))+"x  "+str(round(pose.y, 2))+ "y  "+str(round(pose.theta, 2))+" theta")
+    if return_home == True:
+        command.axes[1]=lin_speed
+        if np.linalg.norm(np.array([current_pose.x, pose.y])-np.array([current_pose.x, home.y])) < .25:
             return_home=False
+            command.axes[1]=0
+        steering_pub.publish(command)
     if new_home == True:
-        home=pose
+        home=current_pose
         win.l1.setText("Home: "+str(round(home.x, 2))+"x  "+str(round(home.y, 2))+ "y  "+str(round(home.theta, 2))+" theta")
         new_home=False
 
