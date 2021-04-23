@@ -25,9 +25,9 @@ current_pose=Pose2DStamped()
 return_home=False
 new_home=True
 lin_speed=0.5
-ang_speed=0.2
-full_circle=20
-full_circle_time=5
+ang_speed=1
+full_circle=25
+full_circle_time=2
 
 def triggerOdom():
     command.axes[3]=0.1
@@ -117,7 +117,7 @@ class window(QMainWindow):
         global return_home
         change_vector=np.array([current_pose.x-home.x, current_pose.y-home.y, current_pose.theta-home.theta])
         rospy.loginfo("change vector theta: "+str(change_vector[0]))
-        if change_vector[0]<0:
+        if change_vector[1]<0:
             rospy.loginfo("case 1")
             rospy.loginfo("angle to home: "+str(math.degrees(np.arctan2(current_pose.y, current_pose.x))))
             rotation_correction=change_vector[2]+math.degrees(np.arctan2(current_pose.y, current_pose.x))
@@ -135,7 +135,7 @@ class window(QMainWindow):
             command.axes[3]=ang_speed
             steering_pub.publish(command)
             rospy.loginfo("rotation correction: "+str(180+rotation_correction))
-            rospy.sleep(full_circle_time*abs(180+rotation_correction)/360)
+            rospy.sleep(full_circle_time*abs(rotation_correction)/360)
             return_home=True
             command.axes[3]=0
             steering_pub.publish(command)
