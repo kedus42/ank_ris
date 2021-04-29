@@ -7,7 +7,7 @@ Then run this script using: sh ank_ris_setup.sh.
 This should download and setup our package as well as all it's dependencies.
 
 # Running nodes in the ank_ris package
-All the nodes in our package are designed to run from a laptop's terminal but runnig on the duckiebot's URI.
+All the nodes in our package are designed to run from a laptop's terminal while runnig on the duckiebot's URI.
 
 To make this possible, you export the ROS_MASTER_URI on every terminal you wish to use our package to the duckiebot's master URI using the command : export ROS_MASTER_URI=http://"name of bot".local:11311 
 
