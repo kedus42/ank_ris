@@ -11,7 +11,7 @@ cd ank_ris
 rm CMakeLists.txt package.xml
 git init
 git remote add origin https://github.com/kedus42/ank_ris
-git pull origin
+git pull origin master
 roscd
 cd ..
 catkin_make

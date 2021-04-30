@@ -3,7 +3,8 @@ import rospy, sys, rospkg, cv2, math
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog
 from sensor_msgs.msg import Joy, CompressedImage
-from duckietown_msgs.msg import Pose2DStamped
+#from duckietown_msgs.msg import Pose2DStamped
+from ank_ris.msg import Pose2DStamped
 import numpy as np
 
 rospy.init_node("nav_home")
