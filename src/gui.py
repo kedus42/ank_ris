@@ -2,14 +2,17 @@
 import rospy, sys, rospkg, cv2, math
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QInputDialog
-from sensor_msgs.msg import Joy, CompressedImage
+from sensor_msgs.msg import Joy, Image, CompressedImage
 #from duckietown_msgs.msg import Pose2DStamped
 from ank_ris.msg import Pose2DStamped
 import numpy as np
+from cv_bridge import CvBridge
 
 rospy.init_node("nav_home")
 rospack=rospkg.RosPack()
 path=rospack.get_path('ank_ris')
+bridge=CvBridge()
+task="None"
 
 steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=10, latch=True)
 while steering_pub.get_num_connections() < 1 and not rospy.is_shutdown():
@@ -29,6 +32,7 @@ lin_speed=0.5
 ang_speed=1
 full_circle=25
 full_circle_time=2
+show="cam"
 
 def triggerOdom():
     command.axes[3]=0.1
@@ -54,8 +58,8 @@ class window(QMainWindow):
 
         self.b1 = QtWidgets.QPushButton(self)
         self.b1.setGeometry(550, 150, 300, 50)
-        self.b1.setText("Return home")
-        self.b1.clicked.connect(self.b1_clicked)
+        self.b1.setText("Follow person")
+        self.b1.clicked.connect(self.lb_clicked)
 
         self.b2 = QtWidgets.QPushButton(self)
         self.b2.setGeometry(550, 210, 300, 50)
@@ -69,8 +73,8 @@ class window(QMainWindow):
 
         self.b4 = QtWidgets.QPushButton(self)
         self.b4.setGeometry(550, 330, 300, 50)
-        self.b4.setText("Set home as current pose")
-        self.b4.clicked.connect(self.b4_clicked)
+        self.b4.setText("Follow duckie")
+        self.b4.clicked.connect(self.sc_clicked)
 
         self.a1 = QtWidgets.QPushButton(self)
         self.a1.setGeometry(950, 110, 60, 60)
@@ -101,8 +105,12 @@ class window(QMainWindow):
         self.l1.setText("Home: "+str(round(home.x, 2))+"x  "+str(round(home.y, 2))+ "y  "+str(round(home.theta, 2))+" theta")
 
         self.l2 = QtWidgets.QLabel(self)
-        self.l2.setGeometry(550, 100, 300, 20)
+        self.l2.setGeometry(550, 80, 300, 20)
         self.l2.setText("Current position: ")
+
+        self.l5 = QtWidgets.QLabel(self)
+        self.l5.setGeometry(550, 110, 300, 20)
+        self.l5.setText("Current task: "+str(task))
 
         self.l3 = QtWidgets.QLabel(self)
         self.l3.setGeometry(10, 10, 512, 384)
@@ -113,6 +121,36 @@ class window(QMainWindow):
         self.l4.setGeometry(950, 180, 60, 60)
         self.l4.setPixmap(QtGui.QPixmap(path+'/imgs/logo.jpeg'))
         self.l4.setScaledContents(1)
+    
+    def lb_clicked(self):
+        global show, task
+        if show!="lb":
+            rospy.set_param("/switch", "lb")
+            show="lb"
+            stopDuck()
+            task="Follow person"
+            self.l5.setText("Current task: "+str(task))
+        else:
+            rospy.set_param("/switch", "cam")
+            show="cam"
+            stopDuck()
+            task="None"
+            self.l5.setText("Current task: "+str(task))
+
+    def sc_clicked(self):
+        global show
+        if show!="sc":
+            rospy.set_param("/switch", "sc")
+            show="sc"
+            stopDuck()
+            task="Follow person"
+            self.l5.setText("Current task: "+str(task))
+        else:
+            rospy.set_param("/switch", "cam")
+            show="cam"
+            stopDuck()
+            task="None"
+            self.l5.setText("Current task: "+str(task))
 
     def b1_clicked(self):
         global return_home
@@ -189,14 +227,42 @@ def odom_callback(pose):
 
 def cam_feed(timer_info):
     global win
-    image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
-    arr=np.fromstring(image.data, np.uint8)
-    img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
-    cv2.imwrite(path+'/imgs/cam_feed.jpg', img)
-    win.l3.setPixmap(QtGui.QPixmap(path+'/imgs/cam_feed.jpg'))
-    win.l3.setScaledContents(1)
+    if show=="cam":
+        image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
+        arr=np.fromstring(image.data, np.uint8)
+        img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
+        cv2.imwrite(path+'/imgs/cam_feed.jpg', img)
+        win.l3.setPixmap(QtGui.QPixmap(path+'/imgs/cam_feed.jpg'))
+        win.l3.setScaledContents(1)
+    else:
+        pass
+
+def lb_callback(image):
+    global win
+    if show=="lb":
+        img = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
+        rospy.loginfo("new detection")
+        cv2.imwrite(path+'/imgs/lb_feed.jpg', img)
+        win.l3.setPixmap(QtGui.QPixmap(path+'/imgs/lb_feed.jpg'))
+        win.l3.setScaledContents(1)
+    else:
+        pass
+
+def sc_callback(image):
+    global win
+    if show=="sc":
+        img = bridge.imgmsg_to_cv2(image, desired_encoding='passthrough')
+        rospy.loginfo("new detection")
+        cv2.imwrite(path+'/imgs/sc_feed.jpg', img)
+        win.l3.setPixmap(QtGui.QPixmap(path+'/imgs/sc_feed.jpg'))
+        win.l3.setScaledContents(1)
+    else:
+        pass
     
 rospy.Subscriber('/lead/velocity_to_pose_node/pose', Pose2DStamped, odom_callback)
+rospy.Subscriber("/ank/detections", Image, sc_callback)
+rospy.Subscriber("/lead/detections", Image, lb_callback)
+
 rospy.Timer(rospy.Duration(.5), cam_feed)
 triggerOdom()
 sys.exit(app.exec_())

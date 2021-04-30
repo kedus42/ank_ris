@@ -24,47 +24,54 @@ speed=.1
 #speed=.5
 move=True
 bridge=CvBridge()
+switch="cam"
 
 def callback(timer_info):
-    image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
-    arr=np.fromstring(image.data, np.uint8)
-    img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
-    command=Joy()
-    bodies=nbody.detectMultiScale(img, 1.2, 1)
-    highestw=0
-    count=0
-    action_threshhold=0
-    highesth=0
-    i=0
-    while i<8:
-        command.axes.append(0)
-        i+=1
-    for x,y,w,h in bodies:
-        cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 1)
-        if w > highestw:
-            trackx=x
-            tracky=y
-            trackh=h
-            highesth=h
-            highestw=w
-        count+=1
-    if count > 0 and highesth>h_threshold and move:
-        cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
-        if trackx+highestw/2 < int((camwidth/2)-camwidth/10):
-            command.axes[3]=steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
-        elif trackx+highestw/2 > int((camwidth/2)+camwidth/10):
-            command.axes[3]=-1*steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
-        if highestw < move_threshhold:
-            command.axes[1]=speed
-        elif highestw > move_threshhold:
-            command.axes[1]=-1*speed
+    global switch
+    switch=rospy.get_param("/switch")
+    if switch=="lb":
+        rospy.loginfo(switch)
+        image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
+        arr=np.fromstring(image.data, np.uint8)
+        img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
+        command=Joy()
+        bodies=nbody.detectMultiScale(img, 1.2, 1)
+        highestw=0
+        count=0
+        action_threshhold=0
+        highesth=0
+        i=0
+        while i<8:
+            command.axes.append(0)
+            i+=1
+        for x,y,w,h in bodies:
+            cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 1)
+            if w > highestw:
+                trackx=x
+                tracky=y
+                trackh=h
+                highesth=h
+                highestw=w
+            count+=1
+        if count > 0 and highesth>h_threshold and move:
+            cv2.rectangle(img, (trackx, tracky), (trackx+highestw, tracky+trackh), (0, 255, 0), 1)
+            if trackx+highestw/2 < int((camwidth/2)-camwidth/10):
+                command.axes[3]=steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+            elif trackx+highestw/2 > int((camwidth/2)+camwidth/10):
+                command.axes[3]=-1*steer_at#*((trackx+highestw/2)-camwidth/2)/(camwidth/2)
+            if highestw < move_threshhold:
+                command.axes[1]=speed
+            elif highestw > move_threshhold:
+                command.axes[1]=-1*speed
+        else:
+            command.axes[1]=0
+            command.axes[3]=0
+        detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
+        image_pub.publish(detect_msg)
+        #cv2.imshow("detected", img)
+        steering_pub.publish(command)
     else:
-        command.axes[1]=0
-        command.axes[3]=0
-    detect_msg=bridge.cv2_to_imgmsg(img, 'bgr8')
-    image_pub.publish(detect_msg)
-    #cv2.imshow("detected", img)
-    steering_pub.publish(command)
+        pass
 
 def follow_callback(msg):
     global move
