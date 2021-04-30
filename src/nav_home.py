@@ -175,6 +175,7 @@ def odom_callback(pose):
     win.l2.setText("Current position: "+str(round(pose.x, 2))+"x  "+str(round(pose.y, 2))+ "y  "+str(round(pose.theta, 2))+" theta")
     if return_home == True:
         command.axes[1]=lin_speed
+        rospy.loginfo("dist from home: "+str(np.linalg.norm(np.array([current_pose.x, pose.y])-np.array([current_pose.x, home.y]))))
         if np.linalg.norm(np.array([current_pose.x, pose.y])-np.array([current_pose.x, home.y])) < .25:
             return_home=False
             command.axes[1]=0
