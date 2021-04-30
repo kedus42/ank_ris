@@ -142,7 +142,8 @@ class window(QMainWindow):
             steering_pub.publish(command)
     def b2_clicked(self):
         command.axes[1]=lin_speed
-        command.axes[3]=np.random.uniform(-1*lin_speed, lin_speed)
+        #command.axes[3]=np.random.uniform(-1*lin_speed, lin_speed)
+        command.axes[3]=0
         steering_pub.publish(command)
     def b4_clicked(self):
         global new_home
