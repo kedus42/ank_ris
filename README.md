@@ -15,7 +15,7 @@ Export the ros_master_uri of your laptop to the duckie container's uri. Change "
 export ROS_MASTER_URI=http://"name".local:11311
 ```
 
-Then run the gui.launch file which will run all the nodes needed:
+Then run the gui.launch file replacing "name" with the name of your duck. This will run all the nodes needed:
 ```
-roslaunch ank_ris gui.launch
+roslaunch ank_ris gui.launch duckie:="name"
 ```
