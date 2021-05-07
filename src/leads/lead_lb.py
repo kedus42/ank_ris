@@ -32,8 +32,7 @@ def callback(timer_info):
     global switch
     switch=rospy.get_param("/switch")
     if switch=="lb":
-        rospy.loginfo(switch)
-        image=rospy.wait_for_message('/'+name+'lead/camera_node/image/compressed', CompressedImage)
+        image=rospy.wait_for_message('/'+name+'/camera_node/image/compressed', CompressedImage)
         arr=np.fromstring(image.data, np.uint8)
         img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
         command=Joy()
@@ -84,8 +83,8 @@ def follow_callback(msg):
 
 def changeSpeed(new_speed):
     global speed, steer_at
-    speed=new_speed
-    steer_at=new_speed*.5
+    speed=new_speed.data
+    steer_at=new_speed.data*.5
 
 timer=rospy.Timer(rospy.Duration(0.5), callback)
 #camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)

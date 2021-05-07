@@ -95,8 +95,8 @@ def callback(t_info):
 
 def changeSpeed(new_speed):
     global speed, steer_at
-    speed=new_speed
-    steer_at=new_speed*.5
+    speed=new_speed.data
+    steer_at=new_speed.data*.5
 
 timer=rospy.Timer(rospy.Duration(1.0/fps), callback)
 speed_sub=rospy.Subscriber('/'+name+'/speed', Float32, callback=changeSpeed)

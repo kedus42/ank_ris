@@ -153,7 +153,7 @@ class window(QMainWindow):
             rospy.set_param("/switch", "sc")
             show="sc"
             stopDuck()
-            task="Follow person"
+            task="Follow duck"
             self.l5.setText("Current task: "+str(task))
         else:
             rospy.set_param("/switch", "cam")
