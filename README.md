@@ -1,22 +1,16 @@
-# ank_ris
 # Setting up the ank_ris package
-First download the ank_ris_setup.sh file from the sh directory to your laptop.
+First download our bash script that will download and setup the package for you
 
-Then run this script using: sh ank_ris_setup.sh.
+wget https://raw.githubusercontent.com/kedus42/ank_ris/master/sh/ank_ris_setup.sh
 
-This should download and setup our package as well as all it's dependencies.
+Then run the downloaded script
 
-# Running nodes in the ank_ris package
-All the nodes in our package are designed to run from a laptop's terminal while runnig on the duckiebot's URI.
+source ank_ris_setup.sh
 
-To make this possible, you export the ROS_MASTER_URI on every terminal you wish to use our package to the duckiebot's master URI using the command : export ROS_MASTER_URI=http://"name of bot".local:11311 
+Export the ros_master_uri of your laptop to the duckie container's uri. Change "name" in the command below to your duck's name
 
-where "name of bot" will be replaced by ank or lead
+export ROS_MASTER_URI=http://"name".local:11311
 
-The following nodes are the most rigorously tested and functional in our package:
+Then run the gui.launch file which will run all the nodes needed
 
-steering_circles --- a node designed to run on ank's uri which will cause it to follow a single duckiebot placed in front of it
-
-lead_lb --- a node designed to run on lead's uri which will cause it to follow a single person in front of it
-
-lead_rand --- a node designed to run on lead's uri which will cause it to move in a random pattern (useful for demonstrating the steering_circles node)
+roslaunch ank_ris gui.launch
