@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy, time, rospkg
 from sensor_msgs.msg import CompressedImage, Joy, Image
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 from cv_bridge import CvBridge
 import numpy as np
 import cv2
@@ -11,15 +11,17 @@ path=rospack.get_path('ank_ris')
 nbody=cv2.CascadeClassifier(path+"/haarcascades/haarcascade_lowerbody.xml")
 
 rospy.init_node('lead_lb')
-steering_pub=rospy.Publisher('/lead/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/lead/detections', Image, queue_size=30)
+name=rospy.get_param('duckie')
+steering_pub=rospy.Publisher('/'+name+'/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/'+name+'/detections', Image, queue_size=30)
+speed=rospy.get_param('speed')
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.8)
 h_threshold=int(camheight*0)
 action_threshhold=0
-steer_at=.05
-speed=.1
+steer_at=speed*.5
+speed=speed
 #steer_at=.2
 #speed=.5
 move=True
@@ -31,7 +33,7 @@ def callback(timer_info):
     switch=rospy.get_param("/switch")
     if switch=="lb":
         rospy.loginfo(switch)
-        image=rospy.wait_for_message('/lead/camera_node/image/compressed', CompressedImage)
+        image=rospy.wait_for_message('/'+name+'lead/camera_node/image/compressed', CompressedImage)
         arr=np.fromstring(image.data, np.uint8)
         img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
         command=Joy()
@@ -80,7 +82,13 @@ def follow_callback(msg):
     if msg=="found":
         move=True
 
+def changeSpeed(new_speed):
+    global speed, steer_at
+    speed=new_speed
+    steer_at=new_speed*.5
+
 timer=rospy.Timer(rospy.Duration(0.5), callback)
 #camera_sub=rospy.Subscriber('/lead/camera_node/image/compressed', CompressedImage, callback=callback)
 follow_sub=rospy.Subscriber('/lead/lost', String, callback=callback)
+speed_sub=rospy.Subscriber('/'+name+'/speed', Float32, callback=changeSpeed)
 rospy.spin()

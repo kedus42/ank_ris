@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+    <arg name="duckie" default="lead"/>
+    <arg name="speed" default="0.1"/>
+    <param name="duckie" type="string" value="$(arg duckie)"/>
+    <param name="speed" type="double" value="$(arg speed)"/>
     <param name="switch" type="string" value="cam"/>
     <node name="gui" pkg="ank_ris" type="gui.py" output="screen"/>
     <node name="steering_circles" pkg="ank_ris" type="steering_circles.py" output="screen"/>

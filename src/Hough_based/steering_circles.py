@@ -3,20 +3,21 @@ import rospy
 import time
 from sensor_msgs.msg import CompressedImage, Joy, Image
 from cv_bridge import CvBridge
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 import numpy as np
 import cv2
 
 rospy.init_node('steering')
-steering_pub=rospy.Publisher('/ank/joy', Joy, queue_size=30)
-image_pub=rospy.Publisher('/ank/detections', Image, queue_size=30)
+name=rospy.get_param('duckie')
+steering_pub=rospy.Publisher('/'+name+'/joy', Joy, queue_size=30)
+image_pub=rospy.Publisher('/'+name+'/detections', Image, queue_size=30)
+speed=rospy.get_param('/speed')
 lead_pub=rospy.Publisher('/lead/lost', String, queue_size=30)
 camwidth=640
 camheight=480
 move_threshhold=int(camwidth*.25)
 action_threshhold=2
-steer_at=.1
-speed=.25
+steer_at=speed*.5
 bridge=CvBridge()
 idle_time_steps=0
 tolerable_idlness=2
@@ -39,7 +40,7 @@ def callback(t_info):
     global idle_time_steps, switch
     switch=rospy.get_param("/switch")
     if switch=="sc":
-        image=rospy.wait_for_message('/ank/camera_node/image/compressed', CompressedImage)
+        image=rospy.wait_for_message('/'+str(name)+'/camera_node/image/compressed', CompressedImage)
         arr=np.fromstring(image.data, np.uint8)
         img=cv2.imdecode(arr, cv2.IMREAD_COLOR)#CV_LOAD_IMAGE_COLOR
         command=Joy()
@@ -92,5 +93,11 @@ def callback(t_info):
     else:
         pass
 
+def changeSpeed(new_speed):
+    global speed, steer_at
+    speed=new_speed
+    steer_at=new_speed*.5
+
 timer=rospy.Timer(rospy.Duration(1.0/fps), callback)
+speed_sub=rospy.Subscriber('/'+name+'/speed', Float32, callback=changeSpeed)
 rospy.spin()
