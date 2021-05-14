@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+    <!--defining cli arguments-->
     <arg name="duckie" default="lead"/>
     <arg name="speed" default="0.2"/>
+
+    <!--defining default parameters and registering on rosparam servers-->
     <param name="duckie" type="string" value="$(arg duckie)"/>
     <param name="speed" type="double" value="$(arg speed)"/>
     <param name="switch" type="string" value="cam"/>
+
+    <!--our nodes-->
     <node name="gui" pkg="ank_ris" type="gui.py" output="screen"/>
     <node name="steering_circles" pkg="ank_ris" type="steering_circles.py" output="screen"/>
     <node name="lead_lb" pkg="ank_ris" type="lead_lb.py" output="screen"/>
