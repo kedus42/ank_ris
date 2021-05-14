@@ -169,6 +169,7 @@ class window(QMainWindow):
             task="None"
             self.l5.setText("Current task: "+str(task))
 
+    #Deprecated function linked to a now removed button
     def b1_clicked(self):
         global return_home
         change_vector=np.array([current_pose.x-home.x, current_pose.y-home.y, current_pose.theta-home.theta])
