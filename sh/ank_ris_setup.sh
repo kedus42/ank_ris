@@ -16,3 +16,4 @@ roscd
 cd ..
 catkin_make
 source devel/setup.bash
+rm ank_ris_setup.sh

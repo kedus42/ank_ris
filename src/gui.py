@@ -16,6 +16,7 @@ path=rospack.get_path('ank_ris')
 bridge=CvBridge()
 task="None"
 
+#Setting up publishers
 steering_pub=rospy.Publisher('/'+name+'/joy', Joy, queue_size=10, latch=True)
 speed_pub=rospy.Publisher('/'+name+'/speed', Float32, queue_size=1, latch=True)
 while steering_pub.get_num_connections() < 1 and not rospy.is_shutdown():
@@ -27,6 +28,7 @@ while i<8:
     command.axes.append(0)
     i+=1
 
+#Setting default speeeds and param values
 home=Pose2DStamped()
 current_pose=Pose2DStamped()
 return_home=False
@@ -38,6 +40,7 @@ full_circle_time=2
 show="cam"
 speed=rospy.get_param('speed')
 
+#Trigger a quick movement on the bot to kickstart it's odom
 def triggerOdom():
     command.axes[3]=0.1
     steering_pub.publish(command)
@@ -45,6 +48,7 @@ def triggerOdom():
     command.axes[3]=0
     steering_pub.publish(command)
 
+#Print a message to stop the duck
 def stopDuck():
     global return_home
     command.axes[1]=0
@@ -54,6 +58,7 @@ def stopDuck():
 
 rospy.on_shutdown(stopDuck)
 
+#Simple gui for user interface
 class window(QMainWindow):
     def __init__(self):
         super(window, self).__init__()
@@ -132,6 +137,7 @@ class window(QMainWindow):
         self.l4.setPixmap(QtGui.QPixmap(path+'/imgs/logo.jpeg'))
         self.l4.setScaledContents(1)
     
+    #Button action for turning on human detection and following
     def lb_clicked(self):
         global show, task
         if show!="lb":
@@ -147,6 +153,7 @@ class window(QMainWindow):
             task="None"
             self.l5.setText("Current task: "+str(task))
 
+    #Button action for turning on duckie detection and following
     def sc_clicked(self):
         global show
         if show!="sc":
@@ -188,6 +195,8 @@ class window(QMainWindow):
             return_home=True
             command.axes[3]=0
             steering_pub.publish(command)
+
+    #Button action for triggering rand walk
     def b2_clicked(self):
         command.axes[1]=lin_speed
         #command.axes[3]=np.random.uniform(-1*lin_speed, lin_speed)
@@ -205,6 +214,8 @@ class window(QMainWindow):
         if speed_changed:
             self.b5.setText("Current speed: "+str(speed))
             speed_pub.publish(speed)
+
+    #Button actions for printing teleop messages
     def a1_clicked(self):
         command.axes[1]=speed
         steering_pub.publish(command)
@@ -222,6 +233,7 @@ app=QApplication(sys.argv)
 win=window()
 win.show()
 
+#Odom callbakc to update gui text fields
 def odom_callback(pose):
     global return_home, win, new_home, home, current_pose
     current_pose=pose
@@ -243,6 +255,7 @@ def odom_callback(pose):
         win.l1.setText("Home: "+str(round(home.x, 2))+"x  "+str(round(home.y, 2))+ "y  "+str(round(home.theta, 2))+" theta")
         new_home=False
 
+#Callbakc to update gui's cam feed every time a new image is retrieved from the cameras in case default settings are on
 def cam_feed(timer_info):
     global win
     if show=="cam":
@@ -255,6 +268,7 @@ def cam_feed(timer_info):
     else:
         pass
 
+#Callbakc to update gui's cam feed every time a new image is retrieved from the cameras in case switch is set to human detection
 def lb_callback(image):
     global win
     if show=="lb":
@@ -266,6 +280,7 @@ def lb_callback(image):
     else:
         pass
 
+#Callbakc to update gui's cam feed every time a new image is retrieved from the cameras in case switch is set to duckie detection
 def sc_callback(image):
     global win
     if show=="sc":
@@ -277,10 +292,12 @@ def sc_callback(image):
     else:
         pass
     
+#Setting up subscribers    
 rospy.Subscriber('/'+name+'/velocity_to_pose_node/pose', Pose2DStamped, odom_callback)
 rospy.Subscriber('/'+name+'/detections', Image, sc_callback)
 rospy.Subscriber('/'+name+'/detections', Image, lb_callback)
 
+#Timer to get video feed every .5 seconds
 rospy.Timer(rospy.Duration(.5), cam_feed)
 triggerOdom()
 sys.exit(app.exec_())
