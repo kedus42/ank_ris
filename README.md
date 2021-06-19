@@ -1,3 +1,7 @@
+# For the OSIP challenge:
+
+To run the gui and use it as a reference without having to set up the package, comment out lines 22 and 23 in gui.py and just run it as a normal python file from the terminal
+
 # Setting up the ank_ris package
 First download our bash script that will download and setup the package for you:
 
